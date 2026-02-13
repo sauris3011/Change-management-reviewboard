@@ -20,14 +20,15 @@
 9. [Output Contract](#9-output-contract)
 10. [Risk Scoring Logic](#10-risk-scoring-logic)
 11. [Explainability Rules](#11-explainability-rules)
-12. [Governance & Audit](#12-governance--audit)
-13. [Security Requirements](#13-security-requirements)
-14. [Observability](#14-observability)
-15. [Performance Targets](#15-performance-targets)
-16. [Phase-wise Delivery Plan](#16-phase-wise-delivery-plan)
-17. [Acceptance Criteria](#17-acceptance-criteria)
-18. [Future Enhancements](#18-future-enhancements)
-19. [Summary](#19-summary)
+12. [Front-End Specification](#12-front-end-specification)
+13. [Governance & Audit](#13-governance--audit)
+14. [Security Requirements](#14-security-requirements)
+15. [Observability](#15-observability)
+16. [Performance Targets](#16-performance-targets)
+17. [Phase-wise Delivery Plan](#17-phase-wise-delivery-plan)
+18. [Acceptance Criteria](#18-acceptance-criteria)
+19. [Future Enhancements](#19-future-enhancements)
+20. [Summary](#20-summary)
 
 ---
 
@@ -1258,7 +1259,784 @@ Different user personas require different explanation depth:
 
 ---
 
-## 12. Governance & Audit
+## 12. Front-End Specification
+
+### 12.1 Technology Stack
+
+**Framework & Libraries:**
+- **React 18+** with TypeScript
+- **UI Library:** Material-UI (MUI) or Ant Design
+- **State Management:** Redux Toolkit or Zustand
+- **Routing:** React Router v6
+- **Data Fetching:** React Query / TanStack Query
+- **Charts:** Recharts or Chart.js
+- **Forms:** React Hook Form + Yup validation
+- **Date Handling:** date-fns or Day.js
+- **HTTP Client:** Axios
+
+**Build & Tooling:**
+- **Build Tool:** Vite
+- **Linting:** ESLint + Prettier
+- **Testing:** Jest + React Testing Library
+- **E2E Testing:** Playwright or Cypress
+
+---
+
+### 12.2 Page Specifications
+
+#### 12.2.1 Change Submission Page
+
+**Route:** `/submit-change`
+
+**Purpose:** Allow users to submit new change requests for risk evaluation.
+
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Header: Submit Change Request                    [Help] [X] │
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Basic Information                                             │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ Short Description*                                    │    │
+│  │ ┌──────────────────────────────────────────────────┐ │    │
+│  │ │ Deploy OMS Order API v2.3.5 with...             │ │    │
+│  │ └──────────────────────────────────────────────────┘ │    │
+│  │                                                        │    │
+│  │ Long Description*                                     │    │
+│  │ ┌──────────────────────────────────────────────────┐ │    │
+│  │ │ This change implements integration...            │ │    │
+│  │ │                                                   │ │    │
+│  │ │                                                   │ │    │
+│  │ └──────────────────────────────────────────────────┘ │    │
+│  │                                                        │    │
+│  │ Change Type*          Change Category*                │    │
+│  │ [Normal     ▼]        [Deployment     ▼]             │    │
+│  │                                                        │    │
+│  │ Implementation Window*                                 │    │
+│  │ [2024-03-20  📅]  [02:00 UTC  🕐]                    │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  Impacted Components                                           │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ Services*                                             │    │
+│  │ [+ Add Service]                                       │    │
+│  │ ☑ svc-oms-order-api        [Remove]                 │    │
+│  │ ☑ svc-payment-processor    [Remove]                 │    │
+│  │                                                        │    │
+│  │ AWS Resources                                          │    │
+│  │ [+ Add Resource]                                       │    │
+│  │ ☑ ECS: oms-order-api       [Remove]                 │    │
+│  │ ☑ RDS: oms-prod-db         [Remove]                 │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  Implementation Plan                                           │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ Implementation Steps*                                 │    │
+│  │ 1. [Deploy new ECS task definition                  ] │    │
+│  │ 2. [Update API Gateway routing                      ] │    │
+│  │ 3. [Run smoke tests                                 ] │    │
+│  │ [+ Add Step]                                          │    │
+│  │                                                        │    │
+│  │ Validation Steps*                                     │    │
+│  │ ☑ Unit tests passed (98% coverage)                   │    │
+│  │ ☑ Integration tests passed                           │    │
+│  │ ☐ Load testing completed                             │    │
+│  │ [+ Add Validation]                                    │    │
+│  │                                                        │    │
+│  │ Rollback Plan*                                        │    │
+│  │ ┌──────────────────────────────────────────────────┐ │    │
+│  │ │ Revert ECS task definition to v2.3.4...         │ │    │
+│  │ └──────────────────────────────────────────────────┘ │    │
+│  │                                                        │    │
+│  │ Estimated Rollback Time: [5] minutes                 │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  Attachments                                                   │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ [Upload Files] or drag and drop                       │    │
+│  │ 📄 test_results.pdf (2.3 MB)    [Remove]            │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │  💾 Draft saved at 10:32 AM                          │    │
+│  │                                                        │    │
+│  │     [Save Draft]  [Preview]  [Submit for Review] ✓   │    │
+│  └──────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+- **Smart Validation:** Real-time field validation with helpful error messages
+- **Auto-save:** Automatically saves draft every 30 seconds
+- **Service Autocomplete:** Type-ahead search from CMDB catalog
+- **AWS Resource Detection:** Parse descriptions to suggest AWS resources
+- **Rollback Quality Score:** Visual indicator (progress bar) showing rollback plan completeness
+- **Test Evidence Score:** Visual indicator showing testing completeness
+
+**Form Validation Rules:**
+
+```typescript
+interface ChangeSubmissionForm {
+  short_description: string; // Required, 10-255 chars
+  long_description: string; // Required, 50+ chars
+  change_type: 'standard' | 'normal' | 'emergency'; // Required
+  change_category: 'deployment' | 'config' | 'infra' | 'data'; // Required
+  implementation_window: Date; // Required
+  impacted_services: string[]; // Required, min 1
+  impacted_aws_resources?: AWSResource[];
+  implementation_steps: string[]; // Required, min 2
+  validation_steps: string[]; // Required, min 1
+  rollback_plan: string; // Required, 50+ chars
+  rollback_time_estimate?: number; // Optional, in minutes
+  attachments?: File[];
+}
+
+// Validation schema (Yup)
+const validationSchema = yup.object({
+  short_description: yup.string()
+    .required('Short description is required')
+    .min(10, 'Must be at least 10 characters')
+    .max(255, 'Must be less than 255 characters'),
+  long_description: yup.string()
+    .required('Detailed description is required')
+    .min(50, 'Please provide at least 50 characters of detail'),
+  impacted_services: yup.array()
+    .min(1, 'Must specify at least one impacted service'),
+  rollback_plan: yup.string()
+    .required('Rollback plan is required')
+    .min(50, 'Rollback plan must be detailed (50+ characters)')
+});
+```
+
+---
+
+#### 12.2.2 Risk Assessment Results Page
+
+**Route:** `/assessment/:evaluation_id`
+
+**Purpose:** Display risk evaluation results with full explainability.
+
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ← Back to Dashboard        Change: CHG0012345                │
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ ⚠️  HIGH RISK                                Risk: 67.5 │  │
+│  │                                                          │  │
+│  │ This change has significant risk factors requiring     │  │
+│  │ enhanced CAB review and additional validation.         │  │
+│  │                                                          │  │
+│  │ Risk Breakdown:                                         │  │
+│  │ ████████████████░░░░  Failure Probability: 68%         │  │
+│  │ ███████████████░░░░░  Blast Radius: 72/100             │  │
+│  │ ███████████░░░░░░░░░  Evidence Gap: 70/100             │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  [Overview] [Risk Drivers] [Recommendations] [Similar] [Audit]│
+│  ──────────────────────────────────────────────────────────  │
+│                                                                │
+│  Overview Tab                                                  │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ Change Summary                                          │  │
+│  │ Deploy OMS Order API v2.3.5 with new payment gateway   │  │
+│  │ integration                                             │  │
+│  │                                                          │  │
+│  │ Key Details                                             │  │
+│  │ • Type: Normal                                          │  │
+│  │ • Category: Deployment                                  │  │
+│  │ • Window: 2024-03-20 02:00 UTC                         │  │
+│  │ • Services: svc-oms-order-api, svc-payment-processor   │  │
+│  │                                                          │  │
+│  │ Outcome Probabilities                                   │  │
+│  │ ┌──────────────────────────────────────────────────┐   │  │
+│  │ │    Pie Chart                                      │   │  │
+│  │ │    Success: 32%                                   │   │  │
+│  │ │    Rollback: 28%                                  │   │  │
+│  │ │    Incident: 18%                                  │   │  │
+│  │ │    Deploy Fail: 15%                               │   │  │
+│  │ │    Degraded: 7%                                   │   │  │
+│  │ └──────────────────────────────────────────────────┘   │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  Positive Signals                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ ✓ Comprehensive unit and integration test coverage     │  │
+│  │   Evidence: 98% test coverage, all tests passed        │  │
+│  │                                                          │  │
+│  │ ✓ Blue-green deployment strategy reduces risk          │  │
+│  │   Evidence: Allows instant rollback                    │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Risk Drivers Tab:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Risk Drivers (3)                                              │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 🔴 High Severity                                        │  │
+│  │                                                          │  │
+│  │ DB migration without adequate rollback plan             │  │
+│  │                                                          │  │
+│  │ Evidence:                                               │  │
+│  │ • rollback_quality_score: 0.3 (Low)                    │  │
+│  │ • db_migration_flag: true                              │  │
+│  │                                                          │  │
+│  │ Historical Reference:                                   │  │
+│  │ 📋 CHG0045231: Similar DB migration required rollback  │  │
+│  │    after 2 hours due to data inconsistency             │  │
+│  │    [View Change]                                        │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 🟠 Medium Severity                                      │  │
+│  │                                                          │  │
+│  │ High-criticality service impacted during peak hours     │  │
+│  │                                                          │  │
+│  │ Evidence:                                               │  │
+│  │ • criticality_score: 0.95                              │  │
+│  │ • implementation_window: 14:00 UTC (peak traffic)      │  │
+│  │                                                          │  │
+│  │ Historical Reference:                                   │  │
+│  │ 📋 CHG0038172: Peak hour deployment caused SEV2        │  │
+│  │    incident, 45min downtime                            │  │
+│  │    [View Change]                                        │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 🟡 Medium Severity                                      │  │
+│  │                                                          │  │
+│  │ Insufficient load testing evidence                      │  │
+│  │                                                          │  │
+│  │ Evidence:                                               │  │
+│  │ • test_evidence_score: 0.4                             │  │
+│  │ • No performance test results provided                 │  │
+│  │                                                          │  │
+│  │ Historical Reference:                                   │  │
+│  │ 📋 CHG0042018: Deployment without load testing caused  │  │
+│  │    capacity issues                                      │  │
+│  │    [View Change]                                        │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  Missing Evidence (2)                                          │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ ⚠️ No performance/load testing results                  │  │
+│  │    Impact: Cannot assess system behavior under load     │  │
+│  │                                                          │  │
+│  │ ⚠️ Rollback plan lacks database-specific steps          │  │
+│  │    Impact: DB rollback may be complex or time-consuming│  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Recommendations Tab:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  De-Risk Recommendations (4)                                   │
+│                                                                │
+│  Filter by: [All Categories ▼]                                │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 🧪 TESTING                                              │  │
+│  │                                                          │  │
+│  │ Conduct load testing with 150% of peak traffic          │  │
+│  │                                                          │  │
+│  │ Rationale:                                              │  │
+│  │ Service handles payment processing; performance         │  │
+│  │ degradation is unacceptable                            │  │
+│  │                                                          │  │
+│  │ Historical Precedent: None                              │  │
+│  │                                                          │  │
+│  │ [Mark as Completed] [Dismiss]                           │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 🔄 ROLLBACK                                             │  │
+│  │                                                          │  │
+│  │ Document detailed DB rollback procedure with estimates  │  │
+│  │                                                          │  │
+│  │ Rationale:                                              │  │
+│  │ DB migrations are point of no return; must have clear   │  │
+│  │ rollback path                                           │  │
+│  │                                                          │  │
+│  │ Historical Precedent:                                   │  │
+│  │ 📋 CHG0045231 [View Change]                            │  │
+│  │                                                          │  │
+│  │ [Mark as Completed] [Dismiss]                           │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 📅 SCHEDULING                                           │  │
+│  │                                                          │  │
+│  │ Reschedule to low-traffic window (02:00-04:00 UTC)     │  │
+│  │                                                          │  │
+│  │ Rationale:                                              │  │
+│  │ Reduces blast radius if issues occur; more time to      │  │
+│  │ recover                                                 │  │
+│  │                                                          │  │
+│  │ Historical Precedent:                                   │  │
+│  │ 📋 CHG0038172 [View Change]                            │  │
+│  │                                                          │  │
+│  │ [Mark as Completed] [Dismiss]                           │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 📊 MONITORING                                           │  │
+│  │                                                          │  │
+│  │ Add CloudWatch alarms for payment success rate and      │  │
+│  │ API latency                                             │  │
+│  │                                                          │  │
+│  │ Rationale:                                              │  │
+│  │ Early detection of payment gateway integration issues   │  │
+│  │                                                          │  │
+│  │ Historical Precedent: None                              │  │
+│  │                                                          │  │
+│  │ [Mark as Completed] [Dismiss]                           │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Similar Changes Tab:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Similar Historical Changes (3)                                │
+│                                                                │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ Change ID │ Outcome    │ Similarity │ Days Ago │      │    │
+│  ├───────────┼────────────┼────────────┼──────────┤      │    │
+│  │ CHG0045231│ 🔴 Rollback│ 87%        │ 45       │[View]│    │
+│  │ OMS DB schema migration - rolled back due to data   │    │
+│  │ inconsistency                                        │    │
+│  │                                                       │    │
+│  │ CHG0038172│ 🔴 Incident│ 76%        │ 120      │[View]│    │
+│  │ Order API deployment during peak - caused SEV2       │    │
+│  │ incident                                             │    │
+│  │                                                       │    │
+│  │ CHG0042018│ 🟡 Degraded│ 71%        │ 89       │[View]│    │
+│  │ Payment service update - performance issues,         │    │
+│  │ required hotfix                                      │    │
+│  └──────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Audit Trail Tab:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Audit Trail                                                   │
+│                                                                │
+│  Evaluation Details                                            │
+│  • Evaluation ID: eval-a3f5-e8d9-c2b1                         │
+│  • Timestamp: 2024-03-10 18:32:15 UTC                         │
+│  • Evaluated by: system                                        │
+│  • Duration: 4.89 seconds                                      │
+│                                                                │
+│  Model Information                                             │
+│  • ML Model: v1.2.3 (XGBoost)                                 │
+│  • LLM Model: gpt-4-turbo-2024-03-01                          │
+│  • Prompt Hash: 7f9e2a1b4c8d                                  │
+│                                                                │
+│  Retrieval Statistics                                          │
+│  • Graph query: 145ms                                          │
+│  • Vector search: 89ms                                         │
+│  • Retrieved changes: CHG0045231, CHG0038172, CHG0042018...   │
+│                                                                │
+│  Inference Timings                                             │
+│  • ML inference: 23ms                                          │
+│  • LLM inference: 3421ms                                       │
+│                                                                │
+│  Feature Vector                                                │
+│  [Expand to view all 15 computed features]                    │
+│                                                                │
+│  [Download Audit Report] [Replay Evaluation]                  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 12.2.3 CAB Dashboard
+
+**Route:** `/dashboard`
+
+**Purpose:** CAB members review and manage change requests.
+
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  CAB Dashboard                        🔔 3 new  [User Menu ▼]│
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Summary Cards                                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │  Pending    │ │  High Risk  │ │  Approved   │            │
+│  │     12      │ │      5      │ │     87      │            │
+│  │  This Week  │ │  Today      │ │  This Week  │            │
+│  └─────────────┘ └─────────────┘ └─────────────┘            │
+│                                                                │
+│  Filters                                                       │
+│  [All Risk Levels ▼] [All Domains ▼] [All Statuses ▼]        │
+│  [Search by Change ID or Description...]                      │
+│                                                                │
+│  Change Requests Table                                         │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ ☐ │ ID │ Risk │ Description │ Domain │ Window │ Actions│   │
+│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
+│  │ ☐ │CHG │ 🔴 67│ Deploy OMS  │  OMS   │ 3/20   │ [View] │   │
+│  │   │0001│      │ Order API...│        │ 02:00  │[Approve│   │
+│  │   │    │      │             │        │        │/Reject]│   │
+│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
+│  │ ☐ │CHG │ 🟠 58│ Update RDS  │Carrier │ 3/21   │ [View] │   │
+│  │   │0002│      │ parameters..│        │ 03:00  │[Approve│   │
+│  │   │    │      │             │        │        │/Reject]│   │
+│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
+│  │ ☐ │CHG │ 🟡 42│ Scale ECS   │  OMS   │ 3/19   │ [View] │   │
+│  │   │0003│      │ service...  │        │ 14:00  │[Approve│   │
+│  │   │    │      │             │        │        │/Reject]│   │
+│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
+│  │ ☐ │CHG │ 🟢 22│ Update env  │Carrier │ 3/22   │ [View] │   │
+│  │   │0004│      │ variables...│        │ 01:00  │[Approve│   │
+│  │   │    │      │             │        │        │/Reject]│   │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  ☑ 2 selected   [Bulk Approve] [Bulk Reject] [Export]        │
+│                                                                │
+│  Pagination: [◀] 1 of 3 [▶]                                   │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Side Panel (when change selected):**
+
+```
+┌─────────────────────────────────────┐
+│  CHG0012345              [Close ✕] │
+├─────────────────────────────────────┤
+│  🔴 HIGH RISK (67.5)                │
+│                                     │
+│  Deploy OMS Order API v2.3.5 with  │
+│  new payment gateway integration   │
+│                                     │
+│  Domain: OMS                        │
+│  Window: 2024-03-20 02:00 UTC      │
+│                                     │
+│  Top Risk Drivers:                  │
+│  • DB migration without adequate    │
+│    rollback plan                    │
+│  • Peak hour deployment             │
+│  • Insufficient load testing        │
+│                                     │
+│  Recommendations:                   │
+│  • Conduct load testing             │
+│  • Document DB rollback             │
+│  • Reschedule to off-peak           │
+│                                     │
+│  [View Full Assessment]             │
+│                                     │
+│  CAB Actions                        │
+│  ┌─────────────────────────────┐   │
+│  │ Decision: [Approve ▼]       │   │
+│  │                              │   │
+│  │ Comments:                    │   │
+│  │ ┌──────────────────────────┐│   │
+│  │ │ Please complete load...  ││   │
+│  │ └──────────────────────────┘│   │
+│  │                              │   │
+│  │ Conditions:                  │   │
+│  │ ☑ Load testing completed     │   │
+│  │ ☑ DB rollback documented     │   │
+│  │ ☐ Reschedule to off-peak     │   │
+│  │                              │   │
+│  │     [Submit Decision]        │   │
+│  └─────────────────────────────┘   │
+└─────────────────────────────────────┘
+```
+
+---
+
+#### 12.2.4 Historical Changes Browser
+
+**Route:** `/history`
+
+**Purpose:** Search and analyze historical changes.
+
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Historical Changes                                            │
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Search & Filters                                              │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ [Search by ID, description, service...]              │    │
+│  │                                                        │    │
+│  │ Outcome: [All ▼]  Domain: [All ▼]  Date Range:        │    │
+│  │ [2023-01-01] to [2024-03-10]                          │    │
+│  │                                                        │    │
+│  │ Risk Level: [☐ Low] [☑ Medium] [☑ High] [☑ Critical] │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  Results (387 changes)                                         │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ ID│Risk│Outcome│Description│Service│Date│[Actions]   │    │
+│  ├───┼────┼───────┼───────────┼───────┼────┼────────────┤    │
+│  │CHG│ 87 │🔴 Incid│DB schema │ OMS   │2/15│[Details]   │    │
+│  │045│    │ent    │migration..│       │    │[Timeline]  │    │
+│  ├───┼────┼───────┼───────────┼───────┼────┼────────────┤    │
+│  │CHG│ 72 │🔴 Rollb│Peak deploy│Carrier│1/22│[Details]   │    │
+│  │038│    │ack    │ment...    │       │    │[Timeline]  │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  [Export Results] [Advanced Search]                           │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 12.2.5 Analytics Dashboard
+
+**Route:** `/analytics`
+
+**Purpose:** Visualize trends, patterns, and system performance.
+
+**Layout:**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Analytics Dashboard                  Period: [Last 30 Days ▼]│
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  Risk Distribution                     Incident Reduction      │
+│  ┌──────────────────────────┐         ┌────────────────────┐ │
+│  │  Donut Chart             │         │  Line Chart         │ │
+│  │                           │         │  Before AI: 45     │ │
+│  │  🟢 Low: 42%             │         │  After AI: 18      │ │
+│  │  🟡 Medium: 35%          │         │  Reduction: 60%    │ │
+│  │  🟠 High: 18%            │         │                     │ │
+│  │  🔴 Critical: 5%         │         │  [Monthly Trend]    │ │
+│  └──────────────────────────┘         └────────────────────┘ │
+│                                                                │
+│  Approval Cycle Time                   CAB Performance        │
+│  ┌──────────────────────────┐         ┌────────────────────┐ │
+│  │  Bar Chart               │         │  Metrics            │ │
+│  │                           │         │  • Avg Review Time │ │
+│  │  Low Risk: 2 hrs         │         │    3.2 hours       │ │
+│  │  Medium: 8 hrs           │         │  • Override Rate   │ │
+│  │  High: 24 hrs            │         │    12%             │ │
+│  │  Critical: 48 hrs        │         │  • Feedback Score  │ │
+│  │                           │         │    78% useful      │ │
+│  └──────────────────────────┘         └────────────────────┘ │
+│                                                                │
+│  Domain Risk Heatmap                                           │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │           │ Low │ Medium │ High │ Critical │ Total   │    │
+│  ├───────────┼─────┼────────┼──────┼──────────┼─────────┤    │
+│  │ OMS       │ 🟢15│ 🟡 8   │ 🟠 3 │ 🔴 1     │ 27      │    │
+│  │ Carrier   │ 🟢22│ 🟡12   │ 🟠 2 │ 🔴 0     │ 36      │    │
+│  │ Fulfillmnt│ 🟢18│ 🟡 6   │ 🟠 1 │ 🔴 0     │ 25      │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  Model Performance Metrics                                     │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ • Prediction Accuracy: 83%                            │    │
+│  │ • False Positive Rate: 22%                            │    │
+│  │ • False Negative Rate: 9%                             │    │
+│  │ • Model Version: v1.2.3                               │    │
+│  │ • Calibration Error: 0.08                             │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│  [Export Dashboard] [Schedule Report]                         │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 12.3 User Workflows
+
+#### Workflow 1: Submit and Evaluate Change
+
+```
+1. User navigates to /submit-change
+2. User fills out form with auto-save
+3. User clicks "Submit for Review"
+4. System validates form
+5. System calls POST /api/v1/evaluate-change
+6. Loading spinner: "Evaluating change request..."
+7. System redirects to /assessment/:evaluation_id
+8. User reviews risk score, drivers, recommendations
+9. User can:
+   a. Edit change based on recommendations
+   b. Submit to CAB
+   c. Download assessment report
+```
+
+#### Workflow 2: CAB Review and Approval
+
+```
+1. CAB member logs in and navigates to /dashboard
+2. System displays pending changes sorted by risk
+3. CAB member filters to "High Risk" changes
+4. CAB member clicks CHG0012345
+5. Side panel opens with summary
+6. CAB member clicks "View Full Assessment"
+7. System navigates to /assessment/:evaluation_id
+8. CAB member reviews all tabs
+9. CAB member returns to dashboard
+10. CAB member selects "Approve with Conditions"
+11. CAB member adds conditions and comments
+12. CAB member clicks "Submit Decision"
+13. System updates change status
+14. Developer receives notification
+```
+
+#### Workflow 3: Historical Analysis
+
+```
+1. User navigates to /history
+2. User filters: Outcome = "Incident", Domain = "OMS"
+3. System displays matching changes
+4. User clicks CHG0045231 "Details"
+5. System displays full change details and PIR
+6. User clicks "Timeline"
+7. System shows change timeline with incidents
+8. User exports results for offline analysis
+```
+
+---
+
+### 12.4 Color Coding and Visual Language
+
+**Risk Level Colors:**
+
+| Risk Band | Color | Background | Text | Border |
+|-----------|-------|------------|------|--------|
+| Low (0-30) | Green | `#e8f5e9` | `#2e7d32` | `#4caf50` |
+| Medium (31-55) | Yellow | `#fff9c4` | `#f57f17` | `#ffeb3b` |
+| High (56-75) | Orange | `#ffe0b2` | `#e65100` | `#ff9800` |
+| Critical (76-100) | Red | `#ffebee` | `#c62828` | `#f44336` |
+
+**Outcome Icons:**
+
+- 🔴 Incident / Rollback / Deploy Fail
+- 🟡 Degraded
+- 🟢 Success
+
+**Category Icons:**
+
+- 🧪 Testing
+- 🔄 Rollback
+- 📅 Scheduling
+- 📊 Monitoring
+- 📋 Planning
+
+---
+
+### 12.5 Responsive Design
+
+**Breakpoints:**
+
+- **Desktop:** ≥ 1200px (default layout)
+- **Tablet:** 768px - 1199px (2-column layout, smaller charts)
+- **Mobile:** < 768px (single column, stacked cards)
+
+**Mobile Adaptations:**
+
+- Navigation: Hamburger menu
+- Tables: Horizontal scroll or card view
+- Charts: Simplified, responsive sizing
+- Side panels: Full-screen modals
+- Form: Single-column layout
+
+---
+
+### 12.6 Accessibility (WCAG 2.1 AA)
+
+**Requirements:**
+
+1. **Keyboard Navigation:** All interactive elements accessible via keyboard
+2. **Screen Reader Support:** Proper ARIA labels, semantic HTML
+3. **Color Contrast:** Minimum 4.5:1 for text, 3:1 for UI components
+4. **Focus Indicators:** Visible focus states on all interactive elements
+5. **Alt Text:** Descriptive alt text for images and icons
+6. **Form Labels:** Explicit labels for all form fields
+7. **Error Messages:** Clear, specific error messages with suggestions
+8. **Responsive Text:** Supports 200% zoom without horizontal scroll
+
+**Implementation:**
+
+```tsx
+// Example: Accessible risk badge component
+interface RiskBadgeProps {
+  score: number;
+  band: 'low' | 'medium' | 'high' | 'critical';
+}
+
+const RiskBadge: React.FC<RiskBadgeProps> = ({ score, band }) => {
+  const config = {
+    low: { color: 'success', icon: '🟢', label: 'Low Risk' },
+    medium: { color: 'warning', icon: '🟡', label: 'Medium Risk' },
+    high: { color: 'orange', icon: '🟠', label: 'High Risk' },
+    critical: { color: 'error', icon: '🔴', label: 'Critical Risk' }
+  };
+
+  const { color, icon, label } = config[band];
+
+  return (
+    <Chip
+      icon={<span role="img" aria-label={label}>{icon}</span>}
+      label={`${label}: ${score}`}
+      color={color}
+      aria-label={`Risk assessment: ${label} with score ${score} out of 100`}
+      tabIndex={0}
+    />
+  );
+};
+```
+
+---
+
+### 12.7 Wireframe Summary
+
+**Key Pages:**
+
+1. **Change Submission:** Multi-section form with smart validation and auto-save
+2. **Risk Assessment:** Tabbed interface with overview, drivers, recommendations, similar changes, audit trail
+3. **CAB Dashboard:** Filterable table with side panel for quick review
+4. **Historical Browser:** Search and filter interface for historical analysis
+5. **Analytics Dashboard:** Charts and metrics showing system performance
+
+**Navigation Structure:**
+
+```
+┌─ Submit Change
+├─ Dashboard
+│  ├─ Pending Changes
+│  ├─ Approved Changes
+│  └─ Rejected Changes
+├─ History
+│  └─ Search & Filter
+├─ Analytics
+│  ├─ Risk Distribution
+│  ├─ Performance Metrics
+│  └─ Trend Analysis
+└─ Settings
+   ├─ User Profile
+   ├─ Team Management
+   └─ System Configuration
+```
+
+---
+
+## 13. Governance & Audit
 
 ### 12.1 Audit Trail Requirements
 
@@ -1393,7 +2171,7 @@ def detect_drift(lookback_days=30):
 
 ---
 
-## 13. Security Requirements
+## 14. Security Requirements
 
 ### 13.1 Data Protection
 
@@ -1493,7 +2271,7 @@ def redact_pii(text):
 
 ---
 
-## 14. Observability
+## 15. Observability
 
 ### 14.1 Key Metrics
 
@@ -1616,7 +2394,7 @@ app.use(AWSXRay.express.closeSegment());
 
 ---
 
-## 15. Performance Targets
+## 16. Performance Targets
 
 ### 15.1 MVP Performance Targets
 
@@ -1662,7 +2440,7 @@ app.use(AWSXRay.express.closeSegment());
 
 ---
 
-## 16. Phase-wise Delivery Plan
+## 17. Phase-wise Delivery Plan
 
 ### Phase 0: Synthetic Prototype (4 weeks)
 
@@ -1766,7 +2544,7 @@ app.use(AWSXRay.express.closeSegment());
 
 ---
 
-## 17. Acceptance Criteria
+## 18. Acceptance Criteria
 
 ### 17.1 MVP Acceptance Criteria
 
@@ -1826,7 +2604,7 @@ The system is considered **MVP-ready** when:
 
 ---
 
-## 18. Future Enhancements
+## 19. Future Enhancements
 
 ### 18.1 Planned Enhancements (Post-MVP)
 
@@ -1859,7 +2637,7 @@ The system is considered **MVP-ready** when:
 
 ---
 
-## 19. Summary
+## 20. Summary
 
 ### 19.1 System Capabilities
 
