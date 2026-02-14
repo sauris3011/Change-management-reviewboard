@@ -2686,6 +2686,213 @@ This LLM-Driven Change Management Optimization System combines:
 
 ---
 
+## 21. Bulk Upload Feature
+
+### 21.1 Overview
+
+Enterprise change management systems often need to process multiple changes simultaneously, especially when importing from external systems like ServiceNow, Jira, or other ITSM platforms. The bulk upload feature allows users to submit 1-1000 changes at once via CSV or Excel files.
+
+### 21.2 Supported File Formats
+
+| Format | Extension | Max Size | Notes |
+|--------|-----------|----------|-------|
+| CSV | `.csv` | 10 MB | UTF-8 encoding required |
+| Excel | `.xlsx`, `.xls` | 10 MB | Modern Excel format preferred |
+
+### 21.3 File Schema
+
+#### Required Columns
+
+| Column Name | Type | Description | Example |
+|-------------|------|-------------|---------|
+| `short_description` | String | Brief change title (max 200 chars) | "Deploy checkout service v2.1.0" |
+| `long_description` | String | Detailed description (max 5000 chars) | "Update checkout microservice with new payment gateway integration..." |
+| `change_type` | Enum | Type of change | `standard`, `normal`, `emergency` |
+| `change_category` | Enum | Category of change | `deployment`, `database`, `infrastructure`, `configuration` |
+| `implementation_steps` | Text | Steps to implement (pipe-separated) | "1. Deploy to staging | 2. Run smoke tests | 3. Deploy to prod" |
+| `validation_steps` | Text | Validation steps (pipe-separated) | "Unit tests passed | Integration tests passed" |
+| `rollback_plan` | String | Rollback procedure | "Revert to previous Docker image via kubectl rollback" |
+| `planned_window` | DateTime | Deployment window | `2024-03-20T14:00:00Z` or `2024-03-20 14:00:00` |
+| `impacted_services` | String | Comma-separated service names | "svc-checkout,svc-payment,svc-inventory" |
+
+#### Optional Columns
+
+| Column Name | Type | Description | Default |
+|-------------|------|-------------|---------|
+| `complexity` | Enum | Change complexity | `medium` (options: `low`, `medium`, `high`) |
+| `change_id` | String | External change ID (e.g., ServiceNow CHG number) | Auto-generated |
+| `assignee` | String | Assigned engineer | `Unassigned` |
+| `priority` | Enum | Change priority | `medium` (options: `low`, `medium`, `high`, `critical`) |
+
+### 21.4 API Endpoint
+
+#### Request
+
+```http
+POST /api/v1/evaluate-change/bulk
+Content-Type: multipart/form-data
+
+file: <binary-file-data>
+```
+
+#### Response
+
+```json
+{
+  "batch_id": "batch_abc123",
+  "uploaded_at": "2024-03-20T10:30:00Z",
+  "total_count": 25,
+  "processed_count": 25,
+  "success_count": 23,
+  "error_count": 2,
+  "processing_time_ms": 12450,
+  "results": [
+    {
+      "row_number": 1,
+      "status": "success",
+      "change_id": "CHG001234",
+      "short_description": "Deploy checkout service v2.1.0",
+      "risk_score": 42.5,
+      "risk_band": "Medium",
+      "prediction_id": "pred_xyz789"
+    },
+    {
+      "row_number": 2,
+      "status": "error",
+      "short_description": "Update database schema",
+      "error": "Missing required field: rollback_plan",
+      "error_code": "VALIDATION_ERROR"
+    }
+  ],
+  "summary": {
+    "risk_distribution": {
+      "Low": 10,
+      "Medium": 8,
+      "High": 4,
+      "Critical": 1
+    },
+    "avg_risk_score": 38.7
+  }
+}
+```
+
+### 21.5 Validation Rules
+
+Each row in the uploaded file must pass validation:
+
+1. **Required Field Check**: All required columns must be present and non-empty
+2. **Data Type Validation**: Enums must match allowed values
+3. **Length Limits**: Fields must not exceed maximum lengths
+4. **Date Format**: `planned_window` must be valid ISO 8601 or common datetime format
+5. **Service Format**: `impacted_services` must be comma-separated without spaces
+6. **Step Format**: Steps can be pipe-separated (`|`) or newline-separated
+
+#### Error Handling
+
+- **Row-Level Errors**: Invalid rows are skipped, but other rows continue processing
+- **File-Level Errors**: Malformed files (corrupt, wrong format) reject entire upload
+- **Partial Success**: Response includes both successful and failed rows
+
+### 21.6 Processing Logic
+
+```
+┌─────────────────┐
+│  Upload File    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Parse & Validate│ ← Check schema, data types
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Process Batch  │ ← Evaluate each change
+│  (Parallel)     │    Risk scoring
+└────────┬────────┘    LLM analysis
+         │
+         ▼
+┌─────────────────┐
+│  Store Results  │ ← Save to database
+└────────┬────────┘    with batch_id
+         │
+         ▼
+┌─────────────────┐
+│  Return Summary │ ← Success/error counts
+└─────────────────┘    Risk distribution
+```
+
+### 21.7 Performance Considerations
+
+- **Parallel Processing**: Changes processed in parallel (up to 10 concurrent)
+- **Rate Limiting**: OpenAI API calls batched to avoid rate limits
+- **Timeout**: 5 minutes maximum processing time per batch
+- **Chunking**: Large files (>100 rows) processed in chunks of 50
+
+### 21.8 Frontend UI Components
+
+#### Bulk Upload Page Features
+
+1. **File Upload Zone**
+   - Drag-and-drop interface
+   - File type validation (CSV/Excel only)
+   - File size check (max 10 MB)
+   - Preview first 5 rows before upload
+
+2. **Progress Indicator**
+   - Upload progress bar
+   - Processing status (X/Y changes evaluated)
+   - Estimated time remaining
+
+3. **Results Table**
+   - Sortable columns (risk score, status, category)
+   - Filter by status (success/error)
+   - Color-coded risk bands
+   - Click row to view full assessment
+
+4. **Download Options**
+   - Export results as CSV
+   - Export only errors for correction
+   - Export risk summary report
+
+5. **Template Download**
+   - Download blank CSV template
+   - Download sample file with 5 examples
+
+### 21.9 Sample CSV Template
+
+```csv
+short_description,long_description,change_type,change_category,implementation_steps,validation_steps,rollback_plan,planned_window,impacted_services,complexity
+"Deploy checkout service v2.1.0","Update checkout microservice with new payment integration","standard","deployment","1. Deploy to staging | 2. Run smoke tests | 3. Deploy to production","Unit tests passed | Integration tests passed","Revert to previous Docker image via kubectl rollback","2024-03-20T14:00:00Z","svc-checkout,svc-payment","medium"
+```
+
+### 21.10 Use Cases
+
+1. **ServiceNow Integration**: Export changes from ServiceNow, upload to get risk scores, import scores back
+2. **Weekly Planning**: CAB uploads next week's planned changes for batch evaluation
+3. **Historical Analysis**: Upload past 6 months of changes to train the system
+4. **Migration**: Import existing change data when onboarding to the system
+
+### 21.11 Security Considerations
+
+- **File Scanning**: Uploaded files scanned for malware
+- **Input Sanitization**: All text fields sanitized to prevent injection attacks
+- **Access Control**: Bulk upload restricted to authorized users (CAB members, change managers)
+- **Audit Trail**: All bulk uploads logged with user, timestamp, and results
+
+### 21.12 Error Codes
+
+| Code | Description | User Action |
+|------|-------------|-------------|
+| `FILE_TOO_LARGE` | File exceeds 10 MB limit | Split into smaller files |
+| `INVALID_FORMAT` | File is not CSV/Excel | Check file extension |
+| `MISSING_COLUMNS` | Required columns missing | Add required columns |
+| `VALIDATION_ERROR` | Row data invalid | Check error details for specific row |
+| `PROCESSING_TIMEOUT` | Batch processing exceeded 5 min | Reduce batch size |
+| `RATE_LIMIT_EXCEEDED` | Too many API calls | Wait and retry |
+
+---
+
 ## Appendix A: Glossary
 
 | Term | Definition |
@@ -2708,6 +2915,7 @@ This LLM-Driven Change Management Optimization System combines:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/evaluate-change` | POST | Submit change for risk evaluation |
+| `/api/v1/evaluate-change/bulk` | POST | Bulk upload changes via CSV/Excel |
 | `/api/v1/predictions/{id}` | GET | Retrieve prediction details |
 | `/api/v1/predictions` | GET | List predictions (paginated) |
 | `/api/v1/similar-changes/{change_id}` | GET | Get similar historical changes |

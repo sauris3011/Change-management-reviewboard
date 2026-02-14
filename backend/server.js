@@ -11,6 +11,7 @@ const { initializeOpenAI } = require('./services/llmService');
 // Import routes
 const changesRoutes = require('./routes/changes');
 const historyRoutes = require('./routes/history');
+const bulkRoutes = require('./routes/bulk');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -46,6 +47,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/v1', changesRoutes);
 app.use('/api/v1/changes', historyRoutes);
+app.use('/api/v1/evaluate-change', bulkRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -54,6 +56,8 @@ app.use((req, res) => {
     message: `Route ${req.method} ${req.path} not found`,
     available_routes: [
       'POST /api/v1/evaluate-change',
+      'POST /api/v1/evaluate-change/bulk',
+      'GET /api/v1/evaluate-change/bulk/template',
       'GET /api/v1/predictions/:id',
       'GET /api/v1/changes/history',
       'GET /api/v1/changes/:id',
@@ -102,6 +106,8 @@ async function startServer() {
       console.log('');
       console.log('Available endpoints:');
       console.log(`  POST   http://localhost:${PORT}/api/v1/evaluate-change`);
+      console.log(`  POST   http://localhost:${PORT}/api/v1/evaluate-change/bulk`);
+      console.log(`  GET    http://localhost:${PORT}/api/v1/evaluate-change/bulk/template`);
       console.log(`  GET    http://localhost:${PORT}/api/v1/predictions/:id`);
       console.log(`  GET    http://localhost:${PORT}/api/v1/changes/history`);
       console.log(`  GET    http://localhost:${PORT}/api/v1/changes/:id`);

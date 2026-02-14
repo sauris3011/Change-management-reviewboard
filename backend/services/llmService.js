@@ -270,5 +270,6 @@ Requirements:
 
 module.exports = {
   initializeOpenAI,
-  generateRiskAssessment
+  generateRiskAssessment,
+  generateMockAssessment
 };

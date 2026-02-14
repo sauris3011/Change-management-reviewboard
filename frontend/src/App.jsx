@@ -5,6 +5,7 @@ import ChangeSubmission from './pages/ChangeSubmission';
 import RiskAssessment from './pages/RiskAssessment';
 import CABDashboard from './pages/CABDashboard';
 import History from './pages/History';
+import BulkUpload from './pages/BulkUpload';
 
 // Create custom theme matching the spec
 const theme = createTheme({
@@ -65,6 +66,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<ChangeSubmission />} />
+            <Route path="/bulk-upload" element={<BulkUpload />} />
             <Route path="/assessment/:id" element={<RiskAssessment />} />
             <Route path="/cab" element={<CABDashboard />} />
             <Route path="/history" element={<History />} />

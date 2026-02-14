@@ -131,7 +131,8 @@ function calculateComplexityScore(complexity, changeType, dbMigrationFlag) {
  * Calculate historical failure rate for similar changes
  */
 function calculateHistoricalFailureRate(historicalChanges) {
-  if (!historicalChanges || historicalChanges.length === 0) {
+  // Ensure historicalChanges is an array
+  if (!historicalChanges || !Array.isArray(historicalChanges) || historicalChanges.length === 0) {
     return 0.3; // Default moderate risk if no history
   }
 

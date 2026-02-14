@@ -117,6 +117,11 @@ function getRiskBand(riskScore) {
  * Find similar historical changes
  */
 function findSimilarChanges(currentChange, historicalChanges, limit = 5) {
+  // Ensure historicalChanges is an array
+  if (!historicalChanges || !Array.isArray(historicalChanges)) {
+    return [];
+  }
+
   const currentServices = new Set(currentChange.services || []);
   const currentCategory = currentChange.change_category;
   const currentType = currentChange.change_type;

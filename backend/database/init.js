@@ -31,8 +31,10 @@ function initDatabase() {
           planned_window TEXT,
           rollback_quality_score REAL,
           evidence_score REAL,
+          assignee TEXT,
           final_outcome TEXT,
           failure_reason_code TEXT,
+          submitted_at TIMESTAMP,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -43,16 +45,22 @@ function initDatabase() {
         CREATE TABLE IF NOT EXISTS predictions (
           prediction_id TEXT PRIMARY KEY,
           change_id TEXT NOT NULL,
+          short_description TEXT,
           risk_score REAL NOT NULL,
+          risk_band TEXT,
           probabilities TEXT NOT NULL,
           drivers TEXT,
           positive_signals TEXT,
           missing_evidence TEXT,
           recommendations TEXT,
+          similar_changes TEXT,
+          features TEXT,
+          entities TEXT,
           retrieved_change_ids TEXT,
-          model_version TEXT NOT NULL,
+          model_version TEXT DEFAULT '1.0.0',
           llm_model TEXT,
           feature_vector TEXT,
+          evaluated_at TIMESTAMP,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (change_id) REFERENCES changes(change_id)
         )

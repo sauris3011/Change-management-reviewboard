@@ -2,6 +2,7 @@ import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/materi
 import { useNavigate, useLocation } from 'react-router-dom';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HistoryIcon from '@mui/icons-material/History';
 
@@ -11,6 +12,7 @@ const Navbar = () => {
 
   const navItems = [
     { label: 'Submit Change', path: '/', icon: <AddCircleIcon /> },
+    { label: 'Bulk Upload', path: '/bulk-upload', icon: <CloudUploadIcon /> },
     { label: 'CAB Dashboard', path: '/cab', icon: <DashboardIcon /> },
     { label: 'History', path: '/history', icon: <HistoryIcon /> },
   ];
