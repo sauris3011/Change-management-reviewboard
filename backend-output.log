@@ -1,0 +1,28 @@
+Initializing database...
+Connected to SQLite database
+Database initialized with sample data
+Database initialized successfully
+OpenAI API key not configured - using mock LLM responses
+Set OPENAI_API_KEY in .env file to enable real LLM integration
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (/mnt/c/Users/Sauris/Projects/change-management-reviewboard/backend/node_modules/express/lib/application.js:635:24)
+    at startServer (/mnt/c/Users/Sauris/Projects/change-management-reviewboard/backend/server.js:94:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v24.11.1
