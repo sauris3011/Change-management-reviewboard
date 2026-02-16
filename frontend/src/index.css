@@ -1,0 +1,98 @@
+/* Material You (MD3) Global Styles */
+
+:root {
+  --md3-primary: #6750A4;
+  --md3-surface: #FFFBFE;
+  --md3-surface-container: #F3EDF7;
+  --md3-secondary-container: #E8DEF8;
+  --md3-tertiary: #7D5260;
+  --md3-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--md3-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Organic blur shape used as background decoration */
+.md3-blur-shape {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+}
+
+.md3-blur-primary {
+  background: var(--md3-primary);
+}
+
+.md3-blur-tertiary {
+  background: var(--md3-tertiary);
+}
+
+.md3-blur-secondary {
+  background: var(--md3-secondary-container);
+}
+
+/* Page wrapper with relative positioning for blur shapes */
+.md3-page {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100vh - 64px);
+}
+
+/* Subtle floating animation for decorative shapes */
+@keyframes md3-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.md3-float {
+  animation: md3-float 12s ease-in-out infinite;
+}
+
+.md3-float-delayed {
+  animation: md3-float 15s ease-in-out 3s infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .md3-float, .md3-float-delayed {
+    animation: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar matching MD3 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CAC4D0;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #79747E;
+}

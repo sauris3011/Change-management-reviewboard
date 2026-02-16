@@ -273,7 +273,10 @@ async function processChange(changeData, db) {
     const explanation = generateRiskExplanation(changeData, riskScore, riskBand);
     const predictionId = `pred_${uuidv4()}`;
 
-    // Store in database
+    const submittedAt = new Date().toISOString();
+    const roundedRisk = Math.round(riskScore * 100) / 100;
+
+    // Store change in database
     await db.run(
       `INSERT INTO changes (
         change_id, short_description, long_description, change_type, change_category,
@@ -293,8 +296,51 @@ async function processChange(changeData, db) {
         changeData.planned_window,
         JSON.stringify(changeData.impacted_services),
         changeData.assignee,
-        'pending',
-        new Date().toISOString()
+        null,
+        submittedAt
+      ]
+    );
+
+    // Store prediction in database so assessment page works
+    const drivers = [];
+    if (changeData.change_type === 'emergency') drivers.push({ driver: 'Emergency change with limited testing time', evidence: ['Bypassed standard review process'] });
+    if (changeData.change_category === 'database') drivers.push({ driver: 'Database changes risk data integrity', evidence: ['Schema modifications detected'] });
+    if (changeData.complexity === 'high') drivers.push({ driver: 'High complexity change', evidence: ['Multiple components affected'] });
+    if (changeData.impacted_services.length > 3) drivers.push({ driver: 'Large blast radius', evidence: [`${changeData.impacted_services.length} services impacted`] });
+    if (changeData.rollback_plan.length < 50) drivers.push({ driver: 'Insufficient rollback plan', evidence: ['Rollback plan lacks detail'] });
+
+    const recommendations = [];
+    if (riskBand === 'High' || riskBand === 'Critical') recommendations.push({ category: 'Testing', recommendation: 'Run comprehensive load tests before deployment', priority: 'HIGH' });
+    if (changeData.rollback_plan.length < 100) recommendations.push({ category: 'Rollback', recommendation: 'Document detailed rollback procedure with time estimates', priority: 'HIGH' });
+    if (changeData.validation_steps.length < 3) recommendations.push({ category: 'Testing', recommendation: 'Add more validation steps including integration tests', priority: 'MEDIUM' });
+
+    const probabilities = [
+      { outcome: 'Success', probability: Math.max(0.1, 1 - roundedRisk / 100) },
+      { outcome: 'Degraded', probability: roundedRisk / 300 },
+      { outcome: 'Rollback', probability: roundedRisk / 400 },
+      { outcome: 'Incident', probability: roundedRisk / 500 },
+    ];
+
+    await db.run(
+      `INSERT INTO predictions (
+        prediction_id, change_id, risk_score, probabilities, drivers,
+        positive_signals, missing_evidence, recommendations,
+        retrieved_change_ids, model_version, llm_model, feature_vector, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        predictionId,
+        changeData.change_id,
+        roundedRisk,
+        JSON.stringify(probabilities),
+        JSON.stringify(drivers),
+        JSON.stringify(['Change has defined scope', 'Rollback plan documented']),
+        JSON.stringify(changeData.validation_steps.length < 3 ? ['Load test results', 'Peer review sign-off'] : []),
+        JSON.stringify(recommendations),
+        JSON.stringify([]),
+        'v1.0.0',
+        'bulk-scorer',
+        JSON.stringify({ complexity_score: changeData.complexity === 'high' ? 0.8 : changeData.complexity === 'medium' ? 0.5 : 0.2 }),
+        submittedAt
       ]
     );
 
@@ -302,7 +348,7 @@ async function processChange(changeData, db) {
       status: 'success',
       change_id: changeData.change_id,
       short_description: changeData.short_description,
-      risk_score: Math.round(riskScore * 100) / 100,
+      risk_score: roundedRisk,
       risk_band: riskBand,
       risk_explanation: explanation,
       prediction_id: predictionId

@@ -98,13 +98,14 @@ router.post('/evaluate-change', async (req, res) => {
     const predictionId = uuidv4();
 
     // Step 8: Store change in database
+    const submittedAt = new Date().toISOString();
     await db.run(
       `INSERT INTO changes (
         change_id, short_description, long_description, change_type,
         change_category, complexity, impacted_services, implementation_steps,
         validation_steps, rollback_plan, planned_window, rollback_quality_score,
-        evidence_score
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        evidence_score, submitted_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         changeId,
         changeData.short_description,
@@ -118,7 +119,8 @@ router.post('/evaluate-change', async (req, res) => {
         changeData.rollback_plan,
         changeData.planned_window,
         features.rollback_quality_score,
-        features.evidence_score
+        features.evidence_score,
+        submittedAt
       ]
     );
 
@@ -204,13 +206,26 @@ router.get('/predictions/:id', async (req, res) => {
     const db = new Database();
     const { id } = req.params;
 
-    const prediction = await db.get(
+    // Try lookup by prediction_id first, then fall back to change_id
+    let prediction = await db.get(
       `SELECT p.*, c.*
        FROM predictions p
        JOIN changes c ON p.change_id = c.change_id
        WHERE p.prediction_id = ?`,
       [id]
     );
+
+    if (!prediction) {
+      prediction = await db.get(
+        `SELECT p.*, c.*
+         FROM predictions p
+         JOIN changes c ON p.change_id = c.change_id
+         WHERE p.change_id = ?
+         ORDER BY p.created_at DESC
+         LIMIT 1`,
+        [id]
+      );
+    }
 
     if (!prediction) {
       return res.status(404).json({

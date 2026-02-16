@@ -15,13 +15,20 @@ router.get('/history', async (req, res) => {
   try {
     const db = new Database();
 
+    // Auto-transition: promote pending changes older than 1 day to historical
+    await db.run(`
+      UPDATE changes SET final_outcome = 'success', updated_at = CURRENT_TIMESTAMP
+      WHERE final_outcome IS NULL AND submitted_at <= datetime('now', '-1 day')
+    `);
+
     // Extract query parameters for filtering
     const {
+      status,
       outcome,
       category,
       type,
       complexity,
-      limit = 50,
+      limit = 500,
       offset = 0
     } = req.query;
 
@@ -34,6 +41,13 @@ router.get('/history', async (req, res) => {
     `;
 
     const params = [];
+
+    // Filter by lifecycle status: 'pending' (new changes) vs 'historical' (completed)
+    if (status === 'pending') {
+      query += ` AND c.final_outcome IS NULL`;
+    } else if (status === 'historical') {
+      query += ` AND c.final_outcome IS NOT NULL`;
+    }
 
     if (outcome) {
       query += ` AND c.final_outcome = ?`;
@@ -74,27 +88,35 @@ router.get('/history', async (req, res) => {
       risk_score: change.risk_score,
       risk_band: change.risk_score ? getRiskBand(change.risk_score).level : null,
       prediction_id: change.prediction_id,
+      assignee: change.assignee,
+      submitted_at: change.submitted_at,
       created_at: change.created_at
     }));
 
-    // Get total count for pagination
-    let countQuery = `SELECT COUNT(*) as total FROM changes WHERE 1=1`;
+    // Get total count for pagination (with same filters)
+    let countQuery = `SELECT COUNT(*) as total FROM changes c WHERE 1=1`;
     const countParams = [];
 
+    if (status === 'pending') {
+      countQuery += ` AND c.final_outcome IS NULL`;
+    } else if (status === 'historical') {
+      countQuery += ` AND c.final_outcome IS NOT NULL`;
+    }
+
     if (outcome) {
-      countQuery += ` AND final_outcome = ?`;
+      countQuery += ` AND c.final_outcome = ?`;
       countParams.push(outcome);
     }
     if (category) {
-      countQuery += ` AND change_category = ?`;
+      countQuery += ` AND c.change_category = ?`;
       countParams.push(category);
     }
     if (type) {
-      countQuery += ` AND change_type = ?`;
+      countQuery += ` AND c.change_type = ?`;
       countParams.push(type);
     }
     if (complexity) {
-      countQuery += ` AND complexity = ?`;
+      countQuery += ` AND c.complexity = ?`;
       countParams.push(complexity);
     }
 
@@ -109,6 +131,7 @@ router.get('/history', async (req, res) => {
         has_more: countResult.total > (parseInt(offset) + formattedChanges.length)
       },
       filters: {
+        status,
         outcome,
         category,
         type,

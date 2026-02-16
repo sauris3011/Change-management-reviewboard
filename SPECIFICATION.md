@@ -1665,100 +1665,39 @@ const validationSchema = yup.object({
 
 #### 12.2.3 CAB Dashboard
 
-**Route:** `/dashboard`
+**Route:** `/cab`
 
-**Purpose:** CAB members review and manage change requests.
+**Purpose:** CAB members review newly submitted change requests that are pending review. These changes have not been implemented yet — the dashboard shows their risk band categorization (Low/Medium/High/Critical) based on risk scores derived from 500+ historical records.
 
-**Layout:**
+**Key Behavior:**
+- Only shows **pending changes** (changes without a `final_outcome`, submitted within the last 24 hours)
+- No "Status" column — all displayed changes are pending by definition
+- After **24 hours**, pending changes auto-transition to historical data with `final_outcome = 'success'`
+- Clicking the **eye icon** navigates to `/assessment/{change_id}` for full risk reasoning
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  CAB Dashboard                        🔔 3 new  [User Menu ▼]│
-├──────────────────────────────────────────────────────────────┤
-│                                                                │
-│  Summary Cards                                                 │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
-│  │  Pending    │ │  High Risk  │ │  Approved   │            │
-│  │     12      │ │      5      │ │     87      │            │
-│  │  This Week  │ │  Today      │ │  This Week  │            │
-│  └─────────────┘ └─────────────┘ └─────────────┘            │
-│                                                                │
-│  Filters                                                       │
-│  [All Risk Levels ▼] [All Domains ▼] [All Statuses ▼]        │
-│  [Search by Change ID or Description...]                      │
-│                                                                │
-│  Change Requests Table                                         │
-│  ┌──────────────────────────────────────────────────────┐    │
-│  │ ☐ │ ID │ Risk │ Description │ Domain │ Window │ Actions│   │
-│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
-│  │ ☐ │CHG │ 🔴 67│ Deploy OMS  │  OMS   │ 3/20   │ [View] │   │
-│  │   │0001│      │ Order API...│        │ 02:00  │[Approve│   │
-│  │   │    │      │             │        │        │/Reject]│   │
-│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
-│  │ ☐ │CHG │ 🟠 58│ Update RDS  │Carrier │ 3/21   │ [View] │   │
-│  │   │0002│      │ parameters..│        │ 03:00  │[Approve│   │
-│  │   │    │      │             │        │        │/Reject]│   │
-│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
-│  │ ☐ │CHG │ 🟡 42│ Scale ECS   │  OMS   │ 3/19   │ [View] │   │
-│  │   │0003│      │ service...  │        │ 14:00  │[Approve│   │
-│  │   │    │      │             │        │        │/Reject]│   │
-│  ├───┼────┼──────┼─────────────┼────────┼────────┼────────┤   │
-│  │ ☐ │CHG │ 🟢 22│ Update env  │Carrier │ 3/22   │ [View] │   │
-│  │   │0004│      │ variables...│        │ 01:00  │[Approve│   │
-│  │   │    │      │             │        │        │/Reject]│   │
-│  └──────────────────────────────────────────────────────┘    │
-│                                                                │
-│  ☑ 2 selected   [Bulk Approve] [Bulk Reject] [Export]        │
-│                                                                │
-│  Pagination: [◀] 1 of 3 [▶]                                   │
-└──────────────────────────────────────────────────────────────┘
-```
+**Summary Cards:**
+| Card | Description |
+|------|-------------|
+| Total Pending | Count of all pending changes |
+| High Risk | Count of changes with risk_score > 55 |
+| Critical Risk | Count of changes with risk_score > 75 |
+| Avg Risk Score | Average risk score across all pending changes |
 
-**Side Panel (when change selected):**
+**Table Columns:**
+| Column | Description |
+|--------|-------------|
+| Change ID | Unique identifier (e.g., CHG123456) |
+| Description | Short description of the change |
+| Risk Score | Numeric risk score (0-100) with color coding |
+| Risk Band | Low / Medium / High / Critical chip |
+| Submitter | Person who submitted the change |
+| Submitted | Time since submission (e.g., "2h ago") |
+| Actions | Eye icon to view full risk assessment |
 
-```
-┌─────────────────────────────────────┐
-│  CHG0012345              [Close ✕] │
-├─────────────────────────────────────┤
-│  🔴 HIGH RISK (67.5)                │
-│                                     │
-│  Deploy OMS Order API v2.3.5 with  │
-│  new payment gateway integration   │
-│                                     │
-│  Domain: OMS                        │
-│  Window: 2024-03-20 02:00 UTC      │
-│                                     │
-│  Top Risk Drivers:                  │
-│  • DB migration without adequate    │
-│    rollback plan                    │
-│  • Peak hour deployment             │
-│  • Insufficient load testing        │
-│                                     │
-│  Recommendations:                   │
-│  • Conduct load testing             │
-│  • Document DB rollback             │
-│  • Reschedule to off-peak           │
-│                                     │
-│  [View Full Assessment]             │
-│                                     │
-│  CAB Actions                        │
-│  ┌─────────────────────────────┐   │
-│  │ Decision: [Approve ▼]       │   │
-│  │                              │   │
-│  │ Comments:                    │   │
-│  │ ┌──────────────────────────┐│   │
-│  │ │ Please complete load...  ││   │
-│  │ └──────────────────────────┘│   │
-│  │                              │   │
-│  │ Conditions:                  │   │
-│  │ ☑ Load testing completed     │   │
-│  │ ☑ DB rollback documented     │   │
-│  │ ☐ Reschedule to off-peak     │   │
-│  │                              │   │
-│  │     [Submit Decision]        │   │
-│  └─────────────────────────────┘   │
-└─────────────────────────────────────┘
-```
+**Filters:**
+- Risk Band dropdown (All / Low / Medium / High / Critical)
+- Search by Change ID, description, or submitter
+- Refresh button
 
 ---
 
@@ -1766,39 +1705,32 @@ const validationSchema = yup.object({
 
 **Route:** `/history`
 
-**Purpose:** Search and analyze historical changes.
+**Purpose:** Search and analyze historical changes. Shows only completed/historical changes (those with a `final_outcome` set). Newly submitted changes auto-transition to historical after 24 hours.
 
-**Layout:**
+**Pagination:** Server-side pagination with **50 records per page** (configurable: 25, 50, 100). Uses MUI `TablePagination` component showing "1-50 of 500" style indicator with Previous/Next navigation.
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Historical Changes                                            │
-├──────────────────────────────────────────────────────────────┤
-│                                                                │
-│  Search & Filters                                              │
-│  ┌──────────────────────────────────────────────────────┐    │
-│  │ [Search by ID, description, service...]              │    │
-│  │                                                        │    │
-│  │ Outcome: [All ▼]  Domain: [All ▼]  Date Range:        │    │
-│  │ [2023-01-01] to [2024-03-10]                          │    │
-│  │                                                        │    │
-│  │ Risk Level: [☐ Low] [☑ Medium] [☑ High] [☑ Critical] │    │
-│  └──────────────────────────────────────────────────────┘    │
-│                                                                │
-│  Results (387 changes)                                         │
-│  ┌──────────────────────────────────────────────────────┐    │
-│  │ ID│Risk│Outcome│Description│Service│Date│[Actions]   │    │
-│  ├───┼────┼───────┼───────────┼───────┼────┼────────────┤    │
-│  │CHG│ 87 │🔴 Incid│DB schema │ OMS   │2/15│[Details]   │    │
-│  │045│    │ent    │migration..│       │    │[Timeline]  │    │
-│  ├───┼────┼───────┼───────────┼───────┼────┼────────────┤    │
-│  │CHG│ 72 │🔴 Rollb│Peak deploy│Carrier│1/22│[Details]   │    │
-│  │038│    │ack    │ment...    │       │    │[Timeline]  │    │
-│  └──────────────────────────────────────────────────────┘    │
-│                                                                │
-│  [Export Results] [Advanced Search]                           │
-└──────────────────────────────────────────────────────────────┘
-```
+**Key Behavior:**
+- Fetches from `/api/v1/changes/history?status=historical&limit=50&offset=0`
+- Server returns paginated data with total count
+- Client-side filters (Risk Band, Status, Search) apply to current page
+
+**Table Columns:**
+| Column | Description |
+|--------|-------------|
+| Change ID | Unique identifier |
+| Description | Short description |
+| Risk Score | Numeric risk score with color coding |
+| Risk Band | Low / Medium / High / Critical chip |
+| Status | Completed / Rejected chip |
+| Submitter | Person who submitted |
+| Submitted | Time since submission |
+| Completed | Time since completion |
+
+**Filters:**
+- Risk Band dropdown (All / Low / Medium / High / Critical)
+- Status dropdown (All / Pending / Rejected / Completed)
+- Search by Change ID, description, or submitter
+- Export to CSV button
 
 ---
 
@@ -2837,27 +2769,29 @@ Each row in the uploaded file must pass validation:
    - Drag-and-drop interface
    - File type validation (CSV/Excel only)
    - File size check (max 10 MB)
-   - Preview first 5 rows before upload
 
 2. **Progress Indicator**
    - Upload progress bar
-   - Processing status (X/Y changes evaluated)
-   - Estimated time remaining
+   - Processing percentage
 
-3. **Results Table**
-   - Sortable columns (risk score, status, category)
-   - Filter by status (success/error)
-   - Color-coded risk bands
-   - Click row to view full assessment
+3. **Summary Cards (Risk Band Distribution)**
+   - **Total Evaluated**: Count of all processed changes
+   - **Low Risk**: Count of changes with risk_score 0-30
+   - **Medium Risk**: Count of changes with risk_score 31-55
+   - **High / Critical Risk**: Combined count of changes with risk_score > 55
+   - **Avg Risk Score**: Average risk score with color coding
+   - Note: Summary shows risk band distribution, NOT success/failure counts, because these changes have not been implemented yet
 
-4. **Download Options**
+4. **Results Table**
+   - Columns: Row, Change ID, Description, Risk Score, Risk Band, Actions
+   - No "Status" column (success/failure) — changes are pending review, not implemented
+   - Color-coded risk band chips
+   - Eye icon to view full risk assessment at `/assessment/{change_id}`
+   - Parse errors shown inline with error tooltip
+
+5. **Download Options**
    - Export results as CSV
-   - Export only errors for correction
-   - Export risk summary report
-
-5. **Template Download**
    - Download blank CSV template
-   - Download sample file with 5 examples
 
 ### 21.9 Sample CSV Template
 
@@ -2890,6 +2824,49 @@ short_description,long_description,change_type,change_category,implementation_st
 | `VALIDATION_ERROR` | Row data invalid | Check error details for specific row |
 | `PROCESSING_TIMEOUT` | Batch processing exceeded 5 min | Reduce batch size |
 | `RATE_LIMIT_EXCEEDED` | Too many API calls | Wait and retry |
+
+---
+
+## 22. Data Lifecycle: Pending to Historical
+
+### 22.1 Overview
+
+Changes follow a lifecycle from submission to historical record:
+
+1. **Submission**: User submits a change via single form (`/`) or bulk upload (`/bulk-upload`). The `submitted_at` timestamp is recorded.
+2. **Pending Review**: Change appears on the CAB Dashboard (`/cab`) for risk review. It has `final_outcome = NULL`.
+3. **Auto-Transition (24 hours)**: After 24 hours from `submitted_at`, the system automatically sets `final_outcome = 'success'` and the change moves to historical data.
+4. **Historical**: Change appears on the History page (`/history`) with full outcome data.
+
+### 22.2 Auto-Transition Logic
+
+The backend runs the following auto-transition on every `/changes/history` API call:
+
+```sql
+UPDATE changes
+SET final_outcome = 'success', updated_at = CURRENT_TIMESTAMP
+WHERE final_outcome IS NULL
+  AND submitted_at <= datetime('now', '-1 day')
+```
+
+This ensures that pending changes older than 24 hours are automatically promoted to historical records.
+
+### 22.3 API Filter: `status` Parameter
+
+The `/api/v1/changes/history` endpoint accepts a `status` query parameter:
+
+| Value | Behavior |
+|-------|----------|
+| `pending` | Returns only changes with `final_outcome IS NULL` |
+| `historical` | Returns only changes with `final_outcome IS NOT NULL` |
+| *(omitted)* | Returns all changes (default) |
+
+### 22.4 Submission Date
+
+All changes record a `submitted_at` timestamp:
+- **Single form submission**: Set server-side when `POST /api/v1/evaluate-change` is called
+- **Bulk upload**: Set for each row when `POST /api/v1/evaluate-change/bulk` processes the file
+- **Displayed**: The submission form shows the current date near the submit button
 
 ---
 
@@ -2940,7 +2917,7 @@ If you'd like, I can produce:
 ---
 
 **Document Control:**
-- **Version:** 1.0
-- **Last Updated:** 2026-02-13
+- **Version:** 1.1
+- **Last Updated:** 2026-02-16
 - **Author:** AI-Assisted Technical Specification
-- **Status:** Draft - Pending Review
+- **Status:** Draft - Updated with data lifecycle, pagination, and CAB dashboard changes

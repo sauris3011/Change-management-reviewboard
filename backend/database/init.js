@@ -66,8 +66,21 @@ function initDatabase() {
         )
       `);
 
-      // Insert sample historical data
-      const sampleChanges = [
+      // Check if we already have data (e.g. from seed-500.js) before inserting samples
+      db.get('SELECT COUNT(*) as cnt FROM changes', (err, row) => {
+        if (row && row.cnt > 10) {
+          console.log(`Database already has ${row.cnt} records, skipping sample data`);
+          resolve(db);
+          return;
+        }
+        insertSampleData(db, resolve, reject);
+      });
+    });
+  });
+}
+
+function insertSampleData(db, resolve, reject) {
+  const sampleChanges = [
         {
           change_id: 'CHG001',
           short_description: 'Database migration for Order Service schema update',
@@ -278,8 +291,6 @@ function initDatabase() {
           resolve(db);
         }
       });
-    });
-  });
 }
 
 module.exports = { initDatabase, dbPath };
